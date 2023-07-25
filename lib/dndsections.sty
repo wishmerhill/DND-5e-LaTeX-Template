@@ -188,9 +188,15 @@
 
 \newcounter {DndSubAreaCounter} [DndAreaCounter]
 
+%%%%%%%%%%%%%%%% ORIGINAL %%%%%%%%%%%%%%%%%%
 % sub area references should be '5a', '5b', not '51', '52'
-\renewcommand \p@DndSubAreaCounter { \arabic {DndAreaCounter} }
-\renewcommand \theDndSubAreaCounter { \alph {DndSubAreaCounter} }
+%\renewcommand \p@DndSubAreaCounter { \arabic {DndAreaCounter} }
+%\renewcommand \theDndSubAreaCounter { \alph {DndSubAreaCounter} }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% LAMORDIA %%%%
+\renewcommand \p@DndSubAreaCounter { \alph {DndAreaCounter} }
+\renewcommand \theDndSubAreaCounter { \arabic {DndSubAreaCounter} }
 
 % Functions to create an area including text and label
 \NewDocumentCommand {\DndArea} {m}
@@ -214,7 +220,7 @@
     \refstepcounter {DndSubAreaCounter}
     \label { \l__dnd_region_tl \l__dnd_sub_area_label_tl : #1 }
 
-    \tl_set:Nn \l_tmpa_tl { \l__dnd_region_tl \arabic {DndAreaCounter} \alph {DndSubAreaCounter} . ~ #1 }
+    \tl_set:Nn \l_tmpa_tl { \l__dnd_region_tl \alph {DndAreaCounter} \arabic {DndSubAreaCounter} . ~ #1 }
 
     \str_case_e:nn {\l__dnd_area_num_depth_tl}
       {

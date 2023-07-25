@@ -124,14 +124,14 @@
     sidebar-title-family .initial:n        = \sffamily,
     sidebar-title-family .value_required:n = true,
     sidebar-title-style .tl_set:N         = \l__dnd_sidebar_title_style_tl,
-    sidebar-title-style .initial:n        = \bfseries \scshape,
+    sidebar-title-style .initial:n        = \large \bfseries \scshape, %was without \large (probably normalsize)
     sidebar-title-style .value_required:n = true,
     % Sidebar body
     sidebar-body-family .tl_set:N         = \l__dnd_sidebar_body_family_tl,
     sidebar-body-family .initial:n        = \__dnd_sf_initial_family:,
     sidebar-body-family .value_required:n = true,
     sidebar-body-style .tl_set:N         = \l__dnd_sidebar_body_style_tl,
-    sidebar-body-style .initial:n        = \small,
+    sidebar-body-style .initial:n        = \normalsize, %was \small
     sidebar-body-style .value_required:n = true,
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Read-aloud boxes
@@ -140,7 +140,7 @@
     readaloud-family .initial:n        = \__dnd_sf_initial_family:,
     readaloud-family .value_required:n = true,
     readaloud-style .tl_set:N         = \l__dnd_readaloud_style_tl,
-    readaloud-style .initial:n        = \small,
+    readaloud-style .initial:n        = \normalsize, %was \small
     readaloud-style .value_required:n = true,
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Table of Contents
