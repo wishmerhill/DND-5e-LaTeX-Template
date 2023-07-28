@@ -1,0 +1,467 @@
+\ExplSyntaxOn
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Vehicle environments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Stat block made to look like the Monster Manual NPC definitions
+\DeclareTColorBox {DndVehicleNoBg} { O{} m }
+  {
+    enhanced,
+    frame~hidden,
+    boxrule     = 0pt,
+    breakable,
+    parbox      = false,
+    boxsep      = 0pt,
+    toptitle    = 3mm,
+    left        = 0pt,
+    right       = 0pt,
+    sharp~corners,
+    opacityback = 0,
+    colframe    = titlered,
+    fonttitle   = \DndFontStatBlockTitle,
+    fontupper   = \DndFontStatBlockBody,
+    fontlower   = \DndFontStatBlockBody,
+    title       = {#2},
+    coltitle    = titlered,
+    #1
+  }
+
+% Stat block made to look like stat blocks in the PHB.
+\DeclareTColorBox {DndVehicleBg} { O{} m }
+  {
+    enhanced,
+    frame~hidden,
+    before~skip      = 12pt plus 3pt minus 3pt,
+    boxrule          = 0pt,
+    breakable,
+    parbox           = false,
+    boxsep           = 2pt,
+    toptitle         = 8pt,
+    top              = 0pt,
+    left             = 2pt,
+    right            = 2pt,
+    bottom           = 7pt,
+    sharp~corners,
+    oversize         = 0pt,
+    borderline~north = {3pt} {0pt}   {titlered},
+    borderline~north = {2pt} {0.5pt} {statblockribbon},
+    borderline~south = {3pt} {0pt}   {titlered},
+    borderline~south = {2pt} {0.5pt} {statblockribbon},
+    colback          = statblockbg,
+    colbacktitle     = statblockbg,
+    colframe         = titlered,
+    fonttitle        = \DndFontStatBlockTitle,
+    coltitle         = titlered,
+    fontupper        = \DndFontStatBlockBody,
+    fontlower        = \DndFontStatBlockBody,
+    title            = {#2},
+    #1
+  }
+
+% Alias DndVehicle to correct background type
+\bool_if:NTF \l__dnd_show_background_bool
+  {
+    \let\DndVehicle\DndVehicleBg
+    \let\endDndVehicle\endDndVehicleBg
+  }{
+    \let\DndVehicle\DndVehicleNoBg
+    \let\endDndVehicle\endDndVehicleNoBg
+  }
+
+% Italicized text appearing immediately after vehicle's name
+\NewDocumentCommand {\DndVehicleType} {m}
+  {
+    \begin {hangingpar}
+      \textit {#1}
+    \end {hangingpar}
+  }
+
+% Fancy DnD 5e stat block rule
+\NewDocumentCommand {\DndVehicleLine} {}
+  {
+    \par \vspace{-2pt} \noindent
+    \begin {tikzpicture}
+      \draw [ rulered, fill = rulered ] ( 0, 0 ) -- ( 0, 0.1 ) -- ( \linewidth, 0.05 );
+    \end {tikzpicture}
+    \par
+  }
+
+% A description variant used to list creature attributes.
+\newlist {__dnd_vehicle_attributes} {description} {1}
+\setlist [__dnd_vehicle_attributes]
+  {
+    before   = \color {titlered},
+    font     = \DndFontStatBlockBody,
+    labelsep = \l__dnd_space_dim,
+    nosep,
+  }
+
+% Only prints the item label if the value was supplied
+\cs_new_protected_nopar:Npn \__dnd_if_vehicle_attribute:nn #1#2
+  {
+    \tl_if_empty:NF {#1}
+      { \item [#2] #1 }
+  }
+
+
+% Only prints the item label if the value was supplied
+\cs_new_protected_nopar:Npn \__dnd_if_vehicle_basics:nn #1#2
+  {
+    \tl_if_empty:NF {#1}
+      { \item [#2] #1 }
+  }
+
+%% Monster basics
+\keys_define:nn { dnd / vehicle / basics }
+  {
+    creature-capacity .tl_set:N          = \l__creature_capacity_tl,
+    creature_capacity .initial:n         = 0,
+    creature_capacity .value_required:n  = true,
+    creaturecapacity .meta:n = { creature-capacity = {#1} },
+    cargo-capacity .tl_set:N         = \l__cargo_capacity_tl,
+    cargo-capacity .initial:n        = 0,
+    cargo-capacity .value_required:n = true,
+    cargocapacity .meta:n = { cargo-capacity = {#1} },
+    travel-pace .tl_set:N         = \l__travel_pace_tl,
+    travel-pace .initial:n        = 30 ~ \unitsname,
+    travel-pace .value_required:n = true,
+  }
+
+\cs_new_protected_nopar:Npn \__dnd_vehicle_basics:
+  {
+      \begin {__dnd_vehicle_attributes}
+      \__dnd_if_vehicle_attribute:nn {\l__creature_capacity_tl} {\creaturecapacityname}
+        \item [\cargocapacityname]  \l__cargo_capacity_tl
+        \item [\travelpacename]      \l__travel_pace_tl
+      \end {__dnd_vehicle_attributes}
+  }
+
+\NewDocumentCommand {\DndVehicleBasics} {o}
+  {
+    \group_begin:
+      \keys_set:nn { dnd / vehicle / basics } {#1}
+      \DndVehicleLine
+      \__dnd_vehicle_basics:
+      \DndVehicleLine
+    \group_end:
+  }
+
+
+
+%% Monster details
+\keys_define:nn { dnd / vehicle / details }
+{
+  saving-throws .tl_set:N         = \l__saving_throws_tl,
+  saving-throws .value_required:n = true,
+  savingthrows .meta:n = { saving-throws = {#1} },
+  skills .tl_set:N         = \l__skills_tl,
+  skills .value_required:n = true,
+  damage-vulnerabilities .tl_set:N         = \l__damage_vulnerabilities_tl,
+  damage-vulnerabilities .value_required:n = true,
+  damagevulnerabilities .meta:n = { damage-vulnerabilities = {#1} },
+  damage-resistances .tl_set:N         = \l__damage_resistances_tl,
+  damage-resistances .value_required:n = true,
+  damageresistances .meta:n = { damage-resistances = {#1} },
+  damage-immunities .tl_set:N         = \l__damage_immunities_tl,
+  damage-immunities .value_required:n = true,
+  damageimmunities .meta:n = { damage-immunities = {#1} },
+  condition-immunities .tl_set:N         = \l__condition_immunities_tl,
+  condition-immunities .value_required:n = true,
+  conditionimmunities .meta:n = { condition-immunities = {#1} },
+  % senses .tl_set:N         = \l__senses_tl,
+  % senses .initial:n        = \defaultsensesname,
+  % senses .value_required:n = false,
+  % languages .tl_set:N         = \l__languages_tl,
+  % languages .initial:n        = ---,
+  % languages .value_required:n = true,
+  % challenge .tl_set:N         = \l__challenge_tl,
+  % challenge .initial:n        = 1,
+  % challenge .value_required:n = true,
+}
+
+\cs_new_protected_nopar:Npn \__dnd_vehicle_details:
+{
+    \begin {__dnd_vehicle_attributes}
+      \__dnd_if_vehicle_attribute:nn {\l__saving_throws_tl}          {\savesname}
+      \__dnd_if_vehicle_attribute:nn {\l__skills_tl}                 {\skillsname}
+      \__dnd_if_vehicle_attribute:nn {\l__damage_vulnerabilities_tl} {\dvulname}
+      \__dnd_if_vehicle_attribute:nn {\l__damage_resistances_tl}     {\dresname}
+      \__dnd_if_vehicle_attribute:nn {\l__damage_immunities_tl}      {\dimmname}
+      \__dnd_if_vehicle_attribute:nn {\l__condition_immunities_tl}   {\cimmname}
+      %\__dnd_if_vehicle_attribute:nn {\l__senses_tl}                 {\sensesname}
+      %\__dnd_if_vehicle_attribute:nn {\l__languages_tl}              {\languagesname} 
+      % no challenge for vehicles
+      %\__dnd_if_vehicle_attribute:nn {\l__challenge_tl}              {\challengename}
+    \end {__dnd_vehicle_attributes}
+}
+
+\NewDocumentCommand {\DndVehicleDetails} {o}
+{
+  \group_begin:
+    \keys_set:nn { dnd / vehicle / details } {#1}
+    \DndVehicleLine{}
+    \__dnd_vehicle_details:
+    \DndVehicleLine{}
+  \group_end:
+}
+
+
+
+\keys_define:nn { dnd / vehicle / ability_scores }
+  {
+    str .tl_set:N         = \l__str_tl,
+    str .initial:n        = 10,
+    str .value_required:n = true,
+    STR .meta:n = { str = #1 },
+    dex .tl_set:N         = \l__dex_tl,
+    dex .initial:n        = 10,
+    dex .value_required:n = true,
+    DEX .meta:n = { dex = #1 },
+    con .tl_set:N         = \l__con_tl,
+    con .initial:n        = 10,
+    con .value_required:n = true,
+    CON .meta:n = { con = #1 },
+    int .tl_set:N         = \l__int_tl,
+    int .initial:n        = 10,
+    int .value_required:n = true,
+    INT .meta:n = { int = #1 },
+    wis .tl_set:N         = \l__wis_tl,
+    wis .initial:n        = 10,
+    wis .value_required:n = true,
+    WIS .meta:n = { wis = #1 },
+    cha .tl_set:N         = \l__cha_tl,
+    cha .initial:n        = 10,
+    cha .value_required:n = true,
+    CHA .meta:n = { cha = #1 },
+  }
+
+% Ability scores in a table
+\cs_new_protected_nopar:Npn \__dnd_vehicle_ability_scores:
+  {
+    \color {titlered}
+    \par \vspace{1pt} \noindent
+    \begin{tabularx} {\linewidth} {YYYYYY}
+      \rule {0pt} {3.7mm} % adds space between hline and table
+      \textbf {\strstatname} &
+      \textbf {\dexstatname} &
+      \textbf {\constatname} &
+      \textbf {\intstatname} &
+      \textbf {\wisstatname} &
+      \textbf {\chastatname} \\
+      \exp_args:NV \__dnd_ability_score_modifier:N \l__str_tl &
+      \exp_args:NV \__dnd_ability_score_modifier:N \l__dex_tl &
+      \exp_args:NV \__dnd_ability_score_modifier:N \l__con_tl &
+      \exp_args:NV \__dnd_ability_score_modifier:N \l__int_tl &
+      \exp_args:NV \__dnd_ability_score_modifier:N \l__wis_tl &
+      \exp_args:NV \__dnd_ability_score_modifier:N \l__cha_tl
+    \end{tabularx}
+
+    \par \vspace{4pt}%
+  }
+
+\NewDocumentCommand {\DndVehicleAbilityScores} {o}
+  {
+    \group_begin:
+      \keys_set:nn { dnd / vehicle / ability_scores } {#1}
+      \__dnd_vehicle_ability_scores:
+    \group_end:
+  }
+
+% Inline header for vehicle actions - similar to a paragraph
+\NewDocumentCommand {\DndVehicleAction} {m}
+  { \par \smallskip \noindent \textsl { \textbf {#1.} } }
+
+% Inline header for vehicle sub actions - similar to a subparagraph
+\NewDocumentCommand {\DndVehicleSubAction} {m}
+  { \par \textsl { \textbf {#1.} } }
+
+% Monster subsection header style
+\NewDocumentCommand {\DndVehicleSection} {m}
+  {
+    \addvspace{6pt plus 2pt minus 2pt} \noindent
+    \group_begin:
+      \DndFontStatBlockSection #1\nopagebreak[4]
+      % \rule is a horizontal command, so placing it under the title incurs extra
+      % line spacing. Use \hrule (a vertical command) instead.
+      \vspace {2pt}\nopagebreak[4]
+      \hrule height 0.6pt
+    \group_end:
+      \par \vspace{5pt}
+    \noindent \ignorespaces
+  }
+
+% Spellcasting levels
+\newlist {DndVehicleSpells} {description} {1}
+\setlist [DndVehicleSpells]
+  {
+    font     = \normalfont \DndFontStatBlockBody,
+    labelsep = \l__dnd_space_dim,
+    noitemsep,
+    topsep   = 6pt plus 2pt minus 2pt,
+  }
+
+
+
+
+\NewDocumentCommand {\DndVehicleSpellLevel} { O{\spellcantripsname} O{\spellatwillname} m }
+  {
+    \item
+      [
+        \str_case_e:nnF {#1}
+          {
+            {1} {\spellfirstlevelname}
+            {2} {\spellsecondlevelname}
+            {3} {\spellthirdlevelname}
+            {4} {\spellfourthlevelname}
+            {5} {\spellfifthlevelname}
+            {6} {\spellsixthlevelname}
+            {7} {\spellseventhlevelname}
+            {8} {\spelleighthlevelname}
+            {9} {\spellninthlevelname}
+          }
+          {#1}
+        {~}(
+        \str_case_e:nnF {#2}
+          {
+            {1} {\spelloneslotname}
+            {2} {\spelltwoslotsname}
+            {3} {\spellthreeslotsname}
+            {4} {\spellfourslotsname}
+          }
+          {#2}
+        ) :
+      ]
+    \DndEmphSpellString{#3}
+  }
+
+%% Monster attacks
+
+
+\keys_define:nn { dnd / vehicle / attack }
+  {
+    name .tl_set:N         = \l__name_tl,
+    name .value_required:n = true,
+    distance .choice:,
+    distance .choices:nn =
+      { both, melee, ranged }
+      { \tl_set:Nn \l__dnd_attack_distance_tl {\l_keys_choice_tl} },
+    distance .initial:n  = both,
+    type .choice:,
+    type / weapon .code:n = { \tl_set:Nn \l__dnd_attack_type_tl {\weaponname} },
+    type / spell .code:n = { \tl_set:Nn \l__dnd_attack_type_tl {\spellname} },
+    type .initial:n  = weapon,
+    mod .tl_set:N         = \l__mod_tl,
+    mod .value_required:n = true,
+    reach .tl_set:N         = \l__reach_tl,
+    reach .initial:n        = 5,
+    reach .value_required:n = true,
+    range .tl_set:N         = \l__range_tl,
+    range .initial:n        = 20/60,
+    range .value_required:n = true,
+    targets .tl_set:N         = \l__targets_tl,
+    targets .initial:n        = \defaulttargetsname,
+    targets .value_required:n = true,
+    dmg .tl_set:N         = \l__dmg_tl,
+    dmg .value_required:n = true,
+    dmg-type .tl_set:N         = \l__dmg_type_tl,
+    dmg-type .value_required:n = true,
+    plus-dmg .tl_set:N         = \l__plus_dmg_tl,
+    plus-dmg .value_required:n = true,
+    plus-dmg-type .tl_set:N         = \l__plus_dmg_type_tl,
+    plus-dmg-type .value_required:n = true,
+    or-dmg .tl_set:N         = \l__or_dmg_tl,
+    or-dmg .value_required:n = true,
+    or-dmg-when .tl_set:N         = \l__or_dmg_when_tl,
+    or-dmg-when .value_required:n = true,
+    extra .tl_set:N         = \l__extra_tl,
+    extra .value_required:n = true,
+  }
+
+\cs_new_protected:Npn \__dnd_vehicle_reach:
+  {
+    \reachname\ \l__reach_tl\ \unitsname
+  }
+
+\cs_new_protected:Npn \__dnd_vehicle_range:
+  {
+    \rangename\ \l__range_tl\ \unitsname
+  }
+
+
+\cs_new_protected:Npn \__dnd_vehicle_attack:
+  {
+    \__dnd_check_for_key:Nnn \l__name_tl {\DndVehicleAttack} {name}
+    \__dnd_check_for_key:Nnn \l__mod_tl {\DndVehicleAttack} {mod}
+
+    \begin{DndVehicleAction} {\l__name_tl}~
+
+      \str_case_e:nnF {\l__dnd_attack_distance_tl}
+        {
+          { melee }
+            {
+              \textit{ \__dnd_caption:nn {\meleeattackname} {\l__dnd_attack_type_tl} : } ~ \__dnd_caption:nn {\tohitname} {\l__mod_tl}, ~ \__dnd_vehicle_reach:
+            }
+          { ranged }
+            {
+              \textit{ \__dnd_caption:nn {\rangedattackname} {\l__dnd_attack_type_tl} : } ~ \__dnd_caption:nn {\tohitname} {\l__mod_tl}, ~ \__dnd_vehicle_range:
+            }
+        }
+        {% Melee and Ranged is the default
+          \textit{ \__dnd_caption:nn {\meleeorrangedattackname} {\l__dnd_attack_type_tl} : } ~ \__dnd_caption:nn {\tohitname} {\l__mod_tl}, ~ \__dnd_vehicle_reach:\ \orname\ \__dnd_vehicle_range:
+        }
+      , ~ \l__targets_tl. ~
+      \textit { \hitname : } ~
+
+      \str_if_empty:NF {\l__dmg_tl} % Don't show any damage if `dmg' is not set.
+        {
+          \l__dmg_tl\ \damagename\ \l__dmg_type_tl
+          \__dnd_if_or_dmg:
+          \__dnd_if_plus_dmg:
+        }
+
+      % `extra' is any special text that goes after the final damage; do not
+      % include the final full stop.
+      \l__extra_tl .
+    \end{DndVehicleAction}
+  }
+
+\NewDocumentCommand {\DndVehicleAttack} {o}
+  {
+    \group_begin:
+      \keys_set:nn { dnd / vehicle / attack } {#1}
+      \__dnd_vehicle_attack:
+    \group_end:
+  }
+
+\NewDocumentCommand {\DndVehicleMelee} {o}
+  {
+    \group_begin:
+      \keys_set:nn { dnd / vehicle / attack } { #1, distance = melee }
+      \__dnd_vehicle_attack:
+    \group_end:
+  }
+
+\NewDocumentCommand {\DndVehicleRanged} {o}
+  {
+    \group_begin:
+      \keys_set:nn { dnd / vehicle / attack } { #1, distance = ranged }
+      \__dnd_vehicle_attack:
+    \group_end:
+  }
+
+%% Legendary Actions
+
+\newlist {DndVehicleLegendaryActions} {description} {1}
+\setlist [DndVehicleLegendaryActions]
+  {
+    font     = \DndFontStatBlockBody,
+    labelsep = \l__dnd_space_dim,
+    noitemsep,
+    topsep   = 6pt plus 2pt minus 2pt,
+  }
+
+\NewDocumentCommand {\DndVehicleLegendaryAction} { m m }
+  {
+    \item [ #1 . ] #2
+  }
+

@@ -88,3 +88,4 @@
 \RequirePackage {lib/dndsidebar}    % sidebars
 \RequirePackage {lib/dndtable}      % tables
 \RequirePackage {lib/dndtoc}        % table of contents styling
+\RequirePackage {lib/dndvehicle}    % stat blocks for vehicles
